@@ -5,41 +5,11 @@ var tableData = data;
 //Get a reference to the table body
 var tbody = d3.select("tbody");
 
-//Select button
-var button = d3.select("#button");
-
-//select form
-var form = d3.select("#form");
-
-//create event handlers
-button.on("click", runEnter);
-form.on("submit", runEnter);
-
 //Use arrow functions and d3 to update each cell with UFO Sighting data
-// data.forEach((ufoSighting) => {
-//     var row = tbody.append("tr");
-//     Object.entries(ufoSighting).forEach(([key, value]) => {
-//         var cell = row.append("td");
-//         cell.text(value);
-//     });
-// });
+function showTable(data){
+    tbody.html("")
 
-// Complete the event handler funtion for the form 
-function runEnter() {
-
-    //Prevent the page from refreshing
-    d3.event.preventDefault();
-
-    // Select the input element and get the raw HTML node
-    var inputElement = d3.select("#patient-form-input");
-
-    // Gdt the value property pf the input element
-    var inputValue = inputElement.property("value");
-
-    var filteredData = tableData.filter(date => date.datetime === inputValue);
-    console.log(filteredData);
-
-    filteredData.forEach((ufoSighting) => {
+    data.forEach((ufoSighting) => {
         var row = tbody.append("tr");
         Object.entries(ufoSighting).forEach(([key, value]) => {
             var cell = row.append("td");
@@ -47,3 +17,35 @@ function runEnter() {
         });
     });
 }
+
+let filters = {}
+
+function setFilters(){
+
+    let changeElement = d3.select(this).select("input");
+    let elementValue = changeElement.property("value");
+    let filterID = changeElement.attr("id");
+
+    if(elementValue){
+        filters[filterID] = elementValue
+    } else {
+        delete filters[filterID]
+    }
+
+    filterTable()
+};
+
+// Complete the event handler funtion for the form 
+function filterTable(){
+    let filteredData = tableData;
+
+    Object.entries(filters).forEach(([key, value]) => {
+        filteredData = filteredData.filter(row => row[key] === value)
+    })
+
+    showTable(filteredData)
+};
+
+d3.selectAll(".filter").on("change", setFilters)
+
+showTable(tableData)
